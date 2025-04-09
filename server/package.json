@@ -1,0 +1,19 @@
+{
+  "name": "skillsphere",
+  "version": "1.0.0",
+  "description": "Master in-demand skills with SkillSphere—expert courses, personalized learning & a vibrant community to fuel your growth, anytime, anywhere",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gopi",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.2",
+    "nodemon": "^3.1.9"
+  }
+}

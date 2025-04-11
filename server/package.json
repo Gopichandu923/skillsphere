@@ -4,7 +4,8 @@
   "description": "Master in-demand skills with SkillSphere—expert courses, personalized learning & a vibrant community to fuel your growth, anytime, anywhere",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "gopi",
   "license": "ISC",

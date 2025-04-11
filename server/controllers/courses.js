@@ -1,4 +1,4 @@
-import courses from "../models/courses";
+import courses from "../models/courses.js";
 
 const addCourse = async (req, res) => {
   try {
@@ -15,4 +15,20 @@ const addCourse = async (req, res) => {
   }
 };
 
-export { addCourse };
+const getCourseDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("id  " + id);
+    const Course = await courses.findOne({ id });
+    if (Course) {
+      res.status(200).json({ Course });
+    } else {
+      res.status(404).json({ message: "Course not found" });
+    }
+  } catch (err) {
+    console.log(`internal server error ${err}`);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export { addCourse, getCourseDetails };

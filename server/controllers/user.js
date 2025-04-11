@@ -13,7 +13,7 @@ const SignIn = async (req, res) => {
     }
 
     const e_user = await user.findOne({ email });
-    if (!e_user) {
+    if (e_user) {
       if (password === e_user.password) {
         const token = jwt.sign(
           {

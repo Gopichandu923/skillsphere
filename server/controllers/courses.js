@@ -14,3 +14,5 @@ const addCourse = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export { addCourse };

@@ -4,7 +4,6 @@ import cors from "cors";
 import { connect } from "./database/connection.js";
 import UserRoutes from "./routes/user.js";
 import CoursesRotes from "./routes/courses.js";
-import bodyParser from "body-parser";
 
 dotenv.config();
 

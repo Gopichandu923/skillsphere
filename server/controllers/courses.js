@@ -1,4 +1,8 @@
 import courses from "../models/courses.js";
+import { GoogleGenAI } from "@google/genai";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const addCourse = async (req, res) => {
   try {
@@ -31,4 +35,21 @@ const getCourseDetails = async (req, res) => {
   }
 };
 
-export { addCourse, getCourseDetails };
+const getRoadmap = async (req, res) => {
+  try {
+    const { query } = req.body;
+    const key = process.env.GEMINI_AI_API_KEY;
+    const ai = new GoogleGenAI({ apiKey: key });
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: query,
+    });
+    console.log(response.text);
+    res.status(200).json(response.text); //returns array of strings
+  } catch (err) {
+    console.log(`internal server error ${err}`);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export { addCourse, getCourseDetails, getRoadmap };

@@ -6,13 +6,50 @@ dotenv.config();
 
 const addCourse = async (req, res) => {
   try {
-    const { name, courseLink, podcastLink, roadmap } = req.body;
-    if (!name || !courseLink || !podcastLink || !roadmap) {
-      res.json({ message: "mention all the feilds" });
+    const { name, courseLink, podcastLink, roadmap, image } = req.body;
+    if (!name || !courseLink || courseLink.length === 0 || !roadmap) {
+      return res.status(400).json({
+        message:
+          "Please provide all required fields: name, at least one courseLink, and roadmap",
+      });
     }
-    const nwe_course = new courses({ name, courseLink, podcastLink, roadmap });
-    nwe_course.save();
-    res.status(201).json({ message: "successfully added the course" });
+    if (!Array.isArray(courseLink)) {
+      return res.status(400).json({
+        message:
+          "courseLink must be an array of objects with type and link properties",
+      });
+    }
+
+    const new_course = new courses({
+      name,
+      courseLink,
+      podcastLink: podcastLink || "",
+      roadmap,
+      image: image || "",
+    });
+
+    await new_course.save();
+    res.status(201).json({
+      message: "Successfully added the course",
+      course: new_course,
+    });
+  } catch (err) {
+    console.error(`Internal server error: ${err}`);
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
+
+const getAllCourses = async (req, res) => {
+  try {
+    const Courses = await courses.find({}, { name: 1, image: 1, _id: 1 });
+    if (Courses.length > 0) {
+      res.status(200).json(Courses);
+    } else {
+      res.status(401).json({ message: "courses not found" });
+    }
   } catch (err) {
     console.log(`internal server error ${err}`);
     res.status(500).json({ message: "Internal server error" });
@@ -22,8 +59,7 @@ const addCourse = async (req, res) => {
 const getCourseDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("id  " + id);
-    const Course = await courses.findOne({ id });
+    const Course = await courses.findOne({ _id: id });
     if (Course) {
       res.status(200).json({ Course });
     } else {
@@ -45,11 +81,11 @@ const getRoadmap = async (req, res) => {
       contents: query,
     });
     console.log(response.text);
-    res.status(200).json(response.text); //returns array of strings
+    res.status(200).json(response.text);
   } catch (err) {
     console.log(`internal server error ${err}`);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export { addCourse, getCourseDetails, getRoadmap };
+export { addCourse, getCourseDetails, getRoadmap, getAllCourses };

@@ -45,7 +45,7 @@ const SignUp = async (req, res) => {
     }
     const nuser = await user.findOne({ email });
     if (!nuser) {
-      const new_user = new user({ name, email, password, password });
+      const new_user = new user({ name, email, password, contact });
       new_user.save();
       res.status(201).json({ message: "user successfully Signup completed" });
     } else {

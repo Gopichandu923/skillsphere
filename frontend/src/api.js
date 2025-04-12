@@ -7,7 +7,7 @@ const API = axios.create({
 //courses
 export const GetAllCourses = async () => await API.get("/courses/");
 
-export const GetCourseById = async (id) => await API.get(`/course/id/${id}`);
+export const GetCourseById = async (id) => await API.get(`/courses/${id}`);
 
 export const GetRoadMap = async (query) =>
   await API.post(`/courses/roadmap/`, query);

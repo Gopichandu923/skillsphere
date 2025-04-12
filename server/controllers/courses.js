@@ -2,6 +2,7 @@ import courses from "../models/courses.js";
 import { GoogleGenAI } from "@google/genai";
 import Question from "../models/questions.js";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -60,14 +61,20 @@ const getAllCourses = async (req, res) => {
 const getCourseDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const Course = await courses.findOne({ _id: id });
-    if (Course) {
-      res.status(200).json({ Course });
-    } else {
-      res.status(404).json({ message: "Course not found" });
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid course ID" });
     }
+
+    const Course = await courses.findById(id);
+    if (!Course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.status(200).json({ Course });
   } catch (err) {
-    console.log(`internal server error ${err}`);
+    console.error("Internal server error:", err.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };

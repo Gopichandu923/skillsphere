@@ -1,4 +1,4 @@
-// controllers/question.js
+/*// controllers/question.js
 import { readFile } from "fs/promises"; // For reading JSON file
 import path from "path";
 import { fileURLToPath } from "url";
@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load JSON data (synchronous read is avoided for better performance)
-const questionsDataPath = path.join(__dirname, "./test.json");
+//const questionsDataPath = path.join(__dirname, "./test.json");
 let questionsData;
 try {
   const jsonContent = await readFile(questionsDataPath, "utf-8");
@@ -72,3 +72,4 @@ const insertQuestions = async (req, res) => {
 };
 
 export { insertQuestions };
+*/

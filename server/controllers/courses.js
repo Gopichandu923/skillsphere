@@ -1,5 +1,6 @@
 import courses from "../models/courses.js";
 import { GoogleGenAI } from "@google/genai";
+import Question from "../models/questions.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -88,4 +89,24 @@ const getRoadmap = async (req, res) => {
   }
 };
 
-export { addCourse, getCourseDetails, getRoadmap, getAllCourses };
+const getQuestionsByCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const questions = await Question.find({ course: id });
+    if (questions.length > 0) {
+      res.status(200).json({ questions });
+    } else {
+      res.status(404).json({ message: "questions not found" });
+    }
+  } catch (err) {
+    console.log(`internal server error ${err}`);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export {
+  addCourse,
+  getCourseDetails,
+  getRoadmap,
+  getAllCourses,
+  getQuestionsByCourse,
+};

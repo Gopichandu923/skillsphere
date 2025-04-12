@@ -57,4 +57,21 @@ const SignUp = async (req, res) => {
   }
 };
 
-export { SignIn, SignUp };
+const GetUserDetails = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      req.status(404).json({ message: "Please fill all fields" });
+    }
+    const e_user = await user.findOne({ email });
+    if (e_user) {
+      res.status(200).json(e_user);
+    } else {
+      req.status(404).json({ message: "user not found" });
+    }
+  } catch (err) {
+    console.log(`internal server error ${err}`);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export { SignIn, SignUp, GetUserDetails };

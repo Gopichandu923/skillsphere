@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../css/CourseDetails.css";
+import "../css1/CourseDetails.css";
 import { GetCourseById } from "../api";
 
 const CourseDetails = () => {
@@ -52,6 +52,10 @@ const CourseDetails = () => {
   useEffect(() => {
     fetchCourse();
   }, [fetchCourse]);
+
+  const handleQuestionsClick = () => {
+    navigate(`/questions/${id}`);
+  };
 
   if (isLoading) {
     return (
@@ -165,13 +169,22 @@ const CourseDetails = () => {
           )}
         </div>
       </div>
-      <button
-        className="back-button"
-        onClick={() => navigate("/courses")}
-        aria-label="Return to courses list"
-      >
-        Back to Courses
-      </button>
+      <div className="course-actions">
+        <button
+          className="questions-button"
+          onClick={handleQuestionsClick}
+          aria-label="View questions for this course"
+        >
+          View Questions
+        </button>
+        <button
+          className="back-button"
+          onClick={() => navigate("/courses")}
+          aria-label="Return to courses list"
+        >
+          Back to Courses
+        </button>
+      </div>
     </div>
   );
 };

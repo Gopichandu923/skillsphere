@@ -7,7 +7,6 @@ import {
   getQuestionsByCourse,
 } from "../controllers/courses.js";
 //import { insertQuestions } from "../controllers/question.js";
-
 const Route = express.Router();
 
 Route.get("/", getAllCourses);

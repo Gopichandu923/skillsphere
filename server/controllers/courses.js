@@ -99,9 +99,11 @@ const getRoadmap = async (req, res) => {
 const getQuestionsByCourse = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id);
     const questions = await Question.find({ course: id });
+    console.log(questions);
     if (questions.length > 0) {
-      res.status(200).json({ questions });
+      res.status(200).json(questions);
     } else {
       res.status(404).json({ message: "questions not found" });
     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../css1/CourseDetails.css";
+import "../css/CourseDetails.css";
 import { GetCourseById } from "../api";
 
 const CourseDetails = () => {
@@ -34,15 +34,7 @@ const CourseDetails = () => {
             : "Failed to fetch course details. Please try again.";
       }
       setError(errorMessage);
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
+      toast.error(errorMessage, toastConfig);
       setTimeout(() => navigate("/courses"), 3000);
     } finally {
       setIsLoading(false);
@@ -70,9 +62,8 @@ const CourseDetails = () => {
       <div className="course-details-container" aria-live="assertive">
         <p className="no-course">{error || "Course not found"}</p>
         <button
-          className="back-button"
+          className="btn btn-secondary"
           onClick={() => navigate("/courses")}
-          aria-label="Return to courses list"
         >
           Back to Courses
         </button>
@@ -82,105 +73,81 @@ const CourseDetails = () => {
 
   return (
     <div className="course-details-container">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        limit={3}
-      />
-      <h2>{course.name}</h2>
-      <div className="course-details-card">
+      <ToastContainer {...toastConfig} />
+
+      <h2 className="course-title">{course.name}</h2>
+
+      <div className="course-card">
         <img
-          src={
-            course.image ||
-            "https://via.placeholder.com/300?text=Image+Not+Found"
-          }
+          src={course.image || placeholderImage}
           alt={course.name}
           className="course-image"
           loading="lazy"
         />
+
         <div className="course-content">
-          <h3>Learning Resources</h3>
-          {course.courseLink?.length > 0 ? (
-            <div className="links-section">
-              <h4>Course Links</h4>
-              <ul>
-                {course.courseLink.map((link) => (
-                  <li key={link._id || link.link}>
-                    <a
-                      href={link.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={
-                        link.type === "free" ? "free-link" : "paid-link"
-                      }
-                      aria-label={`${
-                        link.type === "free" ? "Free" : "Paid"
-                      } resource link`}
-                    >
-                      {link.type === "free" ? "Free" : "Paid"} Resource:{" "}
-                      {link.link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p>No course links available</p>
-          )}
-          {course.podcastLink ? (
-            <div className="links-section">
-              <h4>Podcast</h4>
+          <h3 className="section-heading">Learning Resources</h3>
+
+          <ResourceSection
+            title="Course Links"
+            items={course.courseLink}
+            renderItem={(link) => (
               <a
-                href={course.podcastLink}
+                href={link.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="podcast-link"
+                className={`resource-link ${link.type}-link`}
+                aria-label={`${link.type} resource link`}
+              >
+                {link.type === "free" ? "Free" : "Paid"} Resource: {link.link}
+              </a>
+            )}
+            emptyMessage="No course links available"
+          />
+
+          <ResourceSection
+            title="Podcast"
+            items={course.podcastLink ? [course.podcastLink] : []}
+            renderItem={(link) => (
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="resource-link podcast-link"
                 aria-label="Listen to podcast"
               >
                 Listen to Podcast
               </a>
-            </div>
-          ) : (
-            <p>No podcast available</p>
-          )}
-          {course.roadmap ? (
-            <div className="links-section">
-              <h4>Roadmap</h4>
+            )}
+            emptyMessage="No podcast available"
+          />
+
+          <ResourceSection
+            title="Roadmap"
+            items={course.roadmap ? [course.roadmap] : []}
+            renderItem={(link) => (
               <a
-                href={course.roadmap}
+                href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="roadmap-link"
+                className="resource-link roadmap-link"
                 aria-label="View learning roadmap"
               >
                 View Learning Roadmap
               </a>
-            </div>
-          ) : (
-            <p>No roadmap available</p>
-          )}
+            )}
+            emptyMessage="No roadmap available"
+          />
         </div>
       </div>
-      <div className="course-actions">
-        <button
-          className="questions-button"
-          onClick={handleQuestionsClick}
-          aria-label="View questions for this course"
-        >
+
+      <div className="action-buttons">
+        <button className="btn btn-primary" onClick={handleQuestionsClick}>
           View Questions
         </button>
         <button
-          className="back-button"
+          className="btn btn-secondary"
           onClick={() => navigate("/courses")}
-          aria-label="Return to courses list"
         >
           Back to Courses
         </button>
@@ -188,5 +155,35 @@ const CourseDetails = () => {
     </div>
   );
 };
+
+const ResourceSection = ({ title, items, renderItem, emptyMessage }) => (
+  <div className="resource-section">
+    <h4 className="resource-title">{title}</h4>
+    {items?.length > 0 ? (
+      <ul className="resource-list">
+        {items.map((item, index) => (
+          <li key={index} className="resource-item">
+            {renderItem(item)}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="empty-message">{emptyMessage}</p>
+    )}
+  </div>
+);
+
+const toastConfig = {
+  position: "top-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  theme: "light",
+  limit: 3,
+};
+
+const placeholderImage = "https://via.placeholder.com/300?text=Image+Not+Found";
 
 export default CourseDetails;

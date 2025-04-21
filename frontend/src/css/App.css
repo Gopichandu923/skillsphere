@@ -1,0 +1,36 @@
+/* App Layout Styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem 0;
+  background-color: #f8fafc;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem 0;
+  }
+}
+/* toastify-overrides.css */
+
+/* Change toast colors */
+.Toastify__toast--error {
+  background: #ff4444;
+}
+
+/* Change font */
+.Toastify__toast {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+}
+
+/* Change progress bar */
+.Toastify__progress-bar {
+  background: rgba(255, 255, 255, 0.7);
+}

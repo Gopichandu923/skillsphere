@@ -1,14 +1,42 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import "../css/Navbar.css";
 
 const Navbar = () => {
   return (
-    <nav className="navbar">
-      <Link to="/">Home</Link>
+    <header className="navigation-header">
+      <nav className="navigation-container">
+        <div className="navigation-brand">
+          <Link to="/" className="brand-link">
+            SkillSphere
+          </Link>
+        </div>
 
-      <Link to="/signin">Login</Link>
-    </nav>
+        <div className="navigation-links">
+          <Link to="/" className="nav-link">
+            Home
+          </Link>
+          <Link to="/courses" className="nav-link">
+            Courses
+          </Link>
+          <Link to="/resources" className="nav-link">
+            Resources
+          </Link>
+          <Link to="/about" className="nav-link">
+            About
+          </Link>
+        </div>
+
+        <div className="navigation-actions">
+          <Link to="/signin" className="auth-button login-button">
+            Login
+          </Link>
+          <Link to="/signup" className="auth-button signup-button">
+            Sign Up
+          </Link>
+        </div>
+      </nav>
+    </header>
   );
 };
 

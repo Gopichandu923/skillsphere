@@ -1,56 +1,90 @@
 import React from "react";
-import "../css/Explore.css";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import imageSrc from "../assests/pexels-photo-1326947.webp";
+import "../css/Explore.css"; // Unified stylesheet
 
-function HeroSection() {
+// Main Home Component
+const Explore = () => {
   return (
-    <main className="main">
-      <section className="quote-box">
-        <p>
-          "Education is the most powerful weapon you can use to change the
-          world."
-          <br />
-          <span>- Nelson Mandela</span>
-        </p>
-      </section>
-      <div>
-        <Link to="/explore">Explore</Link>
-      </div>
-    </main>
-  );
-}
-
-function ContactSection() {
-  return (
-    <footer className="contact-section">
-      <h2>Contact Us</h2>
-      <div className="contact-items">
-        <div className="contact-item">
-          <i className="fas fa-envelope"></i>
-          <p>
-            <a href="mailto:info@skillsphere.com">info@skillsphere.com</a>
-          </p>
-        </div>
-        <div className="contact-item">
-          <i className="fas fa-phone"></i>
-          <p>+91-9876543210</p>
-        </div>
-        <div className="contact-item">
-          <i className="fas fa-map-marker-alt"></i>
-          <p>Mumbai, India</p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-function App() {
-  return (
-    <div className="container">
-      <HeroSection />
-      <ContactSection />
+    <div className="home-container">
+      <Header />
+      <Hero />
+      <Cards />
     </div>
   );
-}
+};
 
-export default App;
+// Header Component
+const Header = () => (
+  <header className="header">
+    <div className="header-text-content">
+      <h1 className="header-title">SkillNova</h1>
+      <p className="header-subtitle">Learn. Build. Get Placed.</p>
+    </div>
+    <img src={imageSrc} alt="Study" className="header-image" />
+  </header>
+);
+
+// Hero Component
+const Hero = () => (
+  <section className="hero">
+    <h1 className="hero-title">Empowering Students with the Right Resources</h1>
+    <p className="hero-description">
+      Access handpicked courses, guided roadmaps, real-world projects, and AI
+      tools – all in one place.
+    </p>
+  </section>
+);
+
+// Card Component
+const Card = ({ title, description, onClick }) => (
+  <div className="card" onClick={onClick}>
+    <h3 className="card-title">{title}</h3>
+    <p className="card-description">{description}</p>
+  </div>
+);
+
+// Cards Component
+const Cards = () => {
+  const navigate = useNavigate();
+
+  const cardData = [
+    {
+      title: "Top Courses",
+      description:
+        "Explore DSA, Web Dev, Mobile Dev, AI, and Cybersecurity from top YouTube educators.",
+      route: "/courses",
+    },
+    {
+      title: "Project Library",
+      description:
+        "Browse beginner to advanced projects with GitHub and YouTube links.",
+      route: "/projects",
+    },
+    {
+      title: "Resume & AI Tools",
+      description:
+        "Use our AI-powered tools to generate resumes and prepare for interviews.",
+      route: "/tools",
+    },
+  ];
+
+  const handleCardClick = (route) => {
+    navigate(route);
+  };
+
+  return (
+    <section className="cards-container">
+      {cardData.map((card, index) => (
+        <Card
+          key={index}
+          title={card.title}
+          description={card.description}
+          onClick={() => handleCardClick(card.route)}
+        />
+      ))}
+    </section>
+  );
+};
+
+export default Explore;

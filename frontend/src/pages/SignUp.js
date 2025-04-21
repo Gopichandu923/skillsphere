@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../css/SignUp.css";
 import { SignUpUser } from "../api";
 
-const Signup = () => {
+const SignUp = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,71 +18,39 @@ const Signup = () => {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    // Sanitize: trim whitespace for name, email, contact
-    const sanitizedValue =
-      id === "name" || id === "email" || id === "contact"
-        ? value.trimStart()
-        : value;
     setFormData((prev) => ({
       ...prev,
-      [id]: sanitizedValue,
+      [id]: ["name", "email", "contact"].includes(id)
+        ? value.trimStart()
+        : value,
     }));
   };
 
   const validateForm = () => {
     const { name, email, contact, password, confirmPassword } = formData;
 
-    // Check for empty fields
     if (!name || !email || !contact || !password || !confirmPassword) {
       return "All fields are required";
     }
-
-    // Validate name
-    if (name.trim().length < 2) {
+    if (name.trim().length < 2)
       return "Full name must be at least 2 characters";
-    }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return "Please enter a valid email address";
-    }
-
-    // Validate contact (basic phone number check)
-    const contactRegex = /^\+?\d{10,15}$/;
-    if (!contactRegex.test(contact.replace(/\s/g, ""))) {
+    if (!/^\+?\d{10,15}$/.test(contact.replace(/\s/g, "")))
       return "Please enter a valid phone number (10-15 digits)";
-    }
+    if (password.length < 6) return "Password must be at least 6 characters";
+    if (password !== confirmPassword) return "Passwords do not match";
 
-    // Validate password
-    if (password.length < 6) {
-      return "Password must be at least 6 characters";
-    }
-
-    // Validate confirm password
-    if (password !== confirmPassword) {
-      return "Passwords do not match";
-    }
-
-    return null; // No errors
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Validate form
     const validationError = validateForm();
     if (validationError) {
-      toast.error(validationError, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
+      showToast(validationError, "error");
       setIsLoading(false);
       return;
     }
@@ -91,53 +59,28 @@ const Signup = () => {
       const details = {
         name: formData.name.trim(),
         email: formData.email,
-        contact: formData.contact.replace(/\s/g, ""), // Remove spaces for API
+        contact: formData.contact.replace(/\s/g, ""),
         password: formData.password,
       };
 
       const response = await SignUpUser(details);
 
-      // Backend may return 200 for errors, so check message
       if (
         response.status === 200 &&
         response.data.message.includes("required")
       ) {
-        toast.error(response.data.message, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "light",
-        });
+        showToast(response.data.message, "error");
         return;
       }
       if (response.status === 200 && response.data.message.includes("exist")) {
-        toast.error("Email already registered", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "light",
-        });
+        showToast("Email already registered", "error");
         return;
       }
 
-      // Success (201 or other success case)
-      toast.success("Account created successfully! Redirecting to sign in...", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
-
-      // Reset form
+      showToast(
+        "Account created successfully! Redirecting to sign in...",
+        "success"
+      );
       setFormData({
         name: "",
         email: "",
@@ -145,106 +88,144 @@ const Signup = () => {
         password: "",
         confirmPassword: "",
       });
-
-      setTimeout(() => {
-        navigate("/signin");
-      }, 2500);
+      setTimeout(() => navigate("/signin"), 2500);
     } catch (err) {
       const errorMessage =
         err.response?.data?.message ||
         (err.message === "Network Error"
           ? "Unable to connect to the server"
           : "Failed to create account. Please try again.");
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const showToast = (message, type) => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose: type === "success" ? 2000 : 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "light",
+    });
+  };
+
   return (
-    <div className="signup-container">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        limit={3}
-      />
-      <div className="form-box">
-        <h2>Create an Account</h2>
-        <p>Join SkillSphere and start your journey</p>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            placeholder="John Doe"
-            value={formData.name}
-            onChange={handleChange}
-            required
+    <div className="auth-container">
+      <ToastContainer {...toastConfig} />
+
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">Join SkillSphere</h2>
+          <p className="auth-subtitle">Create your account to start learning</p>
+        </div>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name" className="form-label">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="form-input"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              className="form-input"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="contact" className="form-label">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              id="contact"
+              className="form-input"
+              placeholder="+1234567890"
+              value={formData.contact}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              className="form-input"
+              placeholder="Create a password (min 6 characters)"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              className="form-input"
+              placeholder="Repeat your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className={`auth-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
-          />
-          <label htmlFor="email">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="you@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-          <label htmlFor="contact">Contact Number</label>
-          <input
-            type="tel"
-            id="contact"
-            placeholder="+1234567890"
-            value={formData.contact}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="Create a password (min 6 characters)"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            placeholder="Repeat your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-            disabled={isLoading}
-          />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing up..." : "Sign Up"}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                Signing up...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
         </form>
-        <div className="extra">
-          <p>
-            Already have an account? <a href="/signin">Sign In</a>
+
+        <div className="auth-footer">
+          <p className="auth-text">
+            Already have an account?{" "}
+            <a href="/signin" className="auth-link">
+              Sign In
+            </a>
           </p>
         </div>
       </div>
@@ -252,4 +233,18 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+const toastConfig = {
+  position: "top-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  newestOnTop: true,
+  closeOnClick: true,
+  rtl: false,
+  pauseOnFocusLoss: true,
+  draggable: true,
+  pauseOnHover: true,
+  theme: "light",
+  limit: 3,
+};
+
+export default SignUp;

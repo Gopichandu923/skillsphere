@@ -1,103 +1,166 @@
-SignUp.css * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", sans-serif;
-}
-
-body {
-  background: linear-gradient(to right, #1e3c72, #2a5298);
+/* Main Container */
+.auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 2rem;
+  font-family: "Inter", sans-serif;
 }
 
-.signup-container {
-  background: powderblue;
-  padding: 40px;
+/* Card Styling */
+.auth-card {
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  text-align: center;
 }
 
-.form-box h2 {
-  color: #333;
-  margin-bottom: 10px;
+/* Header Section */
+.auth-header {
+  margin-bottom: 2rem;
 }
 
-.form-box p {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 20px;
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
 }
 
-form label {
+.auth-subtitle {
+  font-size: 1rem;
+  color: #718096;
+}
+
+/* Form Elements */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #444;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
 }
 
-form input {
+.form-input {
   width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 14px;
-  transition: border 0.2s;
+  transition: all 0.2s ease;
+  background-color: #f8fafc;
 }
 
-form input:focus {
-  border-color: #3b82f6;
+.form-input:focus {
   outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
-button {
+.form-input:disabled {
+  background-color: #edf2f7;
+  cursor: not-allowed;
+}
+
+/* Button Styling */
+.auth-button {
   width: 100%;
-  padding: 12px;
-  background-color: #3b82f6;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: white;
+  background-color: #4299e1;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
-  font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-button:hover {
-  background-color: #2563eb;
+.auth-button:hover:not(:disabled) {
+  background-color: #3182ce;
 }
 
-.extra {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-  color: #555;
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.extra a {
-  color: #3b82f6;
+/* Loading Spinner */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Footer Links */
+.auth-footer {
+  margin-top: 1.5rem;
+}
+
+.auth-text {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.auth-link {
+  color: #4299e1;
+  font-weight: 500;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.extra a:hover {
+.auth-link:hover {
+  color: #3182ce;
   text-decoration: underline;
 }
+
+/* Password Strength Indicator */
+.password-strength {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+/* Responsive Design */
 @media (max-width: 480px) {
-  .Toastify__toast {
-    font-size: 0.8rem;
-    margin: 0.5rem;
-    min-height: 50px;
+  .auth-card {
+    padding: 1.5rem;
   }
-  .Toastify__toast-container--top-right {
-    top: 10px;
-    right: 10px;
-    width: 90%;
-    max-width: 300px;
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .auth-form {
+    gap: 1rem;
   }
 }

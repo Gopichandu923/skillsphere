@@ -12,145 +12,146 @@ const SignIn = () => {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    // Sanitize: trim whitespace for email
-    const sanitizedValue = id === "email" ? value.trimStart() : value;
     setFormData((prev) => ({
       ...prev,
-      [id]: sanitizedValue,
+      [id]: id === "email" ? value.trimStart() : value,
     }));
   };
 
   const validateForm = () => {
     const { email, password } = formData;
-
-    // Check for empty fields
-    if (!email || !password) {
-      return "All fields are required";
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!email || !password) return "All fields are required";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return "Please enter a valid email address";
-    }
-
-    return null; // No errors
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Client-side validation
     const validationError = validateForm();
     if (validationError) {
-      toast.error(validationError, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
+      showToast(validationError, "error");
       setIsLoading(false);
       return;
     }
 
     try {
       const response = await SignInUser(formData);
-      console.log("SignIn response:", response.data); // Optional: for debugging
-
-      // Store token
       localStorage.setItem("skillnova-token", response.data.token);
-
-      // Show success toast
-      toast.success(response.data.message || "Successfully signed in!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
-
-      // Redirect to home
-      setTimeout(() => {
-        navigate("/");
-      }, 2500);
+      showToast(response.data.message || "Successfully signed in!", "success");
+      setTimeout(() => navigate("/"), 2500);
     } catch (err) {
-      // Handle backend error messages
       const errorMessage =
         err.response?.data?.message ||
         (err.message === "Network Error"
           ? "Unable to connect to the server"
           : "Failed to sign in. Please try again.");
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
+      showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const showToast = (message, type) => {
+    toast[type](message, {
+      position: "top-right",
+      autoClose: type === "success" ? 2000 : 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "light",
+    });
+  };
+
   return (
-    <div className="login-container">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        limit={3}
-      />
-      <div className="form-box">
-        <h2>Sign In</h2>
-        <p>Access your SkillSphere account</p>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            required
+    <div className="auth-container">
+      <ToastContainer {...toastConfig} />
+
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2 className="auth-title">Welcome Back</h2>
+          <p className="auth-subtitle">
+            Sign in to continue your learning journey
+          </p>
+        </div>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              className="form-input"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              className="form-input"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <button
+            type="submit"
+            className={`auth-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            required
-            disabled={isLoading}
-          />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
-        <div className="extra">
-          <p>
-            Don’t have an account? <a href="/signup">Sign Up</a>
+
+        <div className="auth-footer">
+          <p className="auth-text">
+            Don't have an account?{" "}
+            <a href="/signup" className="auth-link">
+              Sign Up
+            </a>
           </p>
         </div>
       </div>
     </div>
   );
+};
+
+const toastConfig = {
+  position: "top-right",
+  autoClose: 3000,
+  hideProgressBar: false,
+  newestOnTop: true,
+  closeOnClick: true,
+  rtl: false,
+  pauseOnFocusLoss: true,
+  draggable: true,
+  pauseOnHover: true,
+  theme: "light",
+  limit: 3,
 };
 
 export default SignIn;

@@ -1,9 +1,17 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoadingSpinner from "./components/LoadSpinner.js";
+import LoadingSpinner from "./components/LoadSpinner";
+import FloatingChatbot from "./components/FloatingChatbot";
+import FloatingBackButton from "./components/FloatingBackButton";
 import PageNotFound from "./components/PageNotFound";
+import { UserProvider, useUser } from "./context/UserContext";
 import "./css/App.css";
 
 // Lazy-loaded components for better performance
@@ -30,93 +38,116 @@ const AuthLayout = ({ children }) => (
   <main className="main-content">{children}</main>
 );
 
+// Protected route component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useUser();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
-    <Router>
-      <div className="app-container">
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            {/* Routes with default layout (Navbar + Footer) */}
-            <Route
-              path="/"
-              element={
-                <DefaultLayout>
-                  <Home />
-                </DefaultLayout>
-              }
-            />
-            <Route
-              path="/explore"
-              element={
-                <DefaultLayout>
-                  <Explore />
-                </DefaultLayout>
-              }
-            />
-            <Route
-              path="/courses"
-              element={
-                <DefaultLayout>
-                  <Courses />
-                </DefaultLayout>
-              }
-            />
-            <Route
-              path="/courses/:id"
-              element={
-                <DefaultLayout>
-                  <CourseDetails />
-                </DefaultLayout>
-              }
-            />
-            <Route
-              path="/questions/:id"
-              element={
-                <DefaultLayout>
-                  <Questions />
-                </DefaultLayout>
-              }
-            />
-            <Route
-              path="/chatbot"
-              element={
-                <DefaultLayout>
-                  <Chatbot />
-                </DefaultLayout>
-              }
-            />
+    <UserProvider>
+      <Router>
+        <div className="app-container">
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Public routes */}
+              <Route
+                path="/"
+                element={
+                  <DefaultLayout>
+                    <Home />
+                  </DefaultLayout>
+                }
+              />
+              <Route
+                path="/explore"
+                element={
+                  <DefaultLayout>
+                    <Explore />
+                  </DefaultLayout>
+                }
+              />
+              <Route
+                path="/courses"
+                element={
+                  <DefaultLayout>
+                    <Courses />
+                  </DefaultLayout>
+                }
+              />
+              <Route
+                path="/courses/:id"
+                element={
+                  <DefaultLayout>
+                    <CourseDetails />
+                  </DefaultLayout>
+                }
+              />
+              <Route
+                path="/questions/:id"
+                element={
+                  <DefaultLayout>
+                    <Questions />
+                  </DefaultLayout>
+                }
+              />
 
-            {/* Auth routes with minimal layout */}
-            <Route
-              path="/signin"
-              element={
-                <AuthLayout>
-                  <SignIn />
-                </AuthLayout>
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                <AuthLayout>
-                  <SignUp />
-                </AuthLayout>
-              }
-            />
+              {/* Auth routes */}
+              <Route
+                path="/signin"
+                element={
+                  <AuthLayout>
+                    <SignIn />
+                  </AuthLayout>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <AuthLayout>
+                    <SignUp />
+                  </AuthLayout>
+                }
+              />
 
-            {/* 404 page - can choose which layout to use */}
-            <Route
-              path="*"
-              element={
-                <DefaultLayout>
-                  <PageNotFound />
-                </DefaultLayout>
-              }
-            />
-          </Routes>
-        </Suspense>
-      </div>
-    </Router>
+              {/* Protected routes */}
+
+              <Route
+                path="/chatbot"
+                element={
+                  <DefaultLayout>
+                    <ProtectedRoute>
+                      <Chatbot />
+                    </ProtectedRoute>
+                  </DefaultLayout>
+                }
+              />
+
+              {/* 404 page */}
+              <Route
+                path="*"
+                element={
+                  <DefaultLayout>
+                    <PageNotFound />
+                  </DefaultLayout>
+                }
+              />
+            </Routes>
+            <FloatingBackButton />
+            <FloatingChatbot />
+          </Suspense>
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
 

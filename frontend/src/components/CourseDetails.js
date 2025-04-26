@@ -2,8 +2,18 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {
+  FaYoutube,
+  FaLink,
+  FaLock,
+  FaLockOpen,
+  FaHeadphones,
+  FaMap,
+} from "react-icons/fa";
 import "../css/CourseDetails.css";
 import { GetCourseById } from "../api";
+
+const placeholderImage = "https://via.placeholder.com/300?text=Course+Image";
 
 const CourseDetails = () => {
   const [course, setCourse] = useState(null);
@@ -20,6 +30,7 @@ const CourseDetails = () => {
       if (!response.data?.Course) {
         throw new Error("Course data not found");
       }
+      document.title = "Skillsphere | " + response.data.Course.name;
       setCourse(response.data.Course);
     } catch (err) {
       let errorMessage;
@@ -70,7 +81,6 @@ const CourseDetails = () => {
       </div>
     );
   }
-
   return (
     <div className="course-details-container">
       <ToastContainer {...toastConfig} />
@@ -97,9 +107,28 @@ const CourseDetails = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`resource-link ${link.type}-link`}
-                aria-label={`${link.type} resource link`}
+                aria-label={`${link.type} resource`}
               >
-                {link.type === "free" ? "Free" : "Paid"} Resource: {link.link}
+                <div className="resource-icon">
+                  {link.link.includes("youtube") ? (
+                    <FaYoutube className="youtube-icon" />
+                  ) : (
+                    <FaLink className="link-icon" />
+                  )}
+                  {link.type === "paid" ? (
+                    <FaLock className="paid-icon" />
+                  ) : (
+                    <FaLockOpen className="free-icon" />
+                  )}
+                </div>
+                <div className="resource-text">
+                  <span className="resource-type">
+                    {link.type === "free" ? "Free" : "Premium"} Resource
+                  </span>
+                  <span className="resource-source">
+                    {getDomainName(link.link)}
+                  </span>
+                </div>
               </a>
             )}
             emptyMessage="No course links available"
@@ -114,9 +143,15 @@ const CourseDetails = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="resource-link podcast-link"
-                aria-label="Listen to podcast"
+                aria-label="Podcast"
               >
-                Listen to Podcast
+                <div className="resource-icon">
+                  <FaHeadphones className="podcast-icon" />
+                </div>
+                <div className="resource-text">
+                  <span className="resource-type">Podcast</span>
+                  <span className="resource-source">{getDomainName(link)}</span>
+                </div>
               </a>
             )}
             emptyMessage="No podcast available"
@@ -131,9 +166,15 @@ const CourseDetails = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="resource-link roadmap-link"
-                aria-label="View learning roadmap"
+                aria-label="Learning roadmap"
               >
-                View Learning Roadmap
+                <div className="resource-icon">
+                  <FaMap className="roadmap-icon" />
+                </div>
+                <div className="resource-text">
+                  <span className="resource-type">Learning Roadmap</span>
+                  <span className="resource-source">{getDomainName(link)}</span>
+                </div>
               </a>
             )}
             emptyMessage="No roadmap available"
@@ -145,15 +186,22 @@ const CourseDetails = () => {
         <button className="btn btn-primary" onClick={handleQuestionsClick}>
           View Questions
         </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => navigate("/courses")}
-        >
-          Back to Courses
-        </button>
       </div>
     </div>
   );
+};
+
+// Helper function to extract domain name
+const getDomainName = (url) => {
+  try {
+    const domain = new URL(url).hostname.replace("www.", "");
+    return (
+      domain.split(".")[0].charAt(0).toUpperCase() +
+      domain.split(".")[0].slice(1)
+    );
+  } catch {
+    return "External Resource";
+  }
 };
 
 const ResourceSection = ({ title, items, renderItem, emptyMessage }) => (
@@ -183,7 +231,5 @@ const toastConfig = {
   theme: "light",
   limit: 3,
 };
-
-const placeholderImage = "https://via.placeholder.com/300?text=Image+Not+Found";
 
 export default CourseDetails;

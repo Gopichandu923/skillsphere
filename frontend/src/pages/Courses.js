@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaGraduationCap, FaSpinner } from "react-icons/fa";
 import { GetAllCourses } from "../api";
 import "../css/Courses.css";
 
@@ -12,6 +13,7 @@ const Courses = () => {
 
   useEffect(() => {
     document.title = "SkillSphere | Courses";
+
     const fetchCourses = async () => {
       setIsLoading(true);
       try {
@@ -28,6 +30,7 @@ const Courses = () => {
         setIsLoading(false);
       }
     };
+
     fetchCourses();
   }, []);
 
@@ -50,16 +53,24 @@ const Courses = () => {
       />
 
       <div className="courses-header">
-        <h2 className="courses-title">Explore Our Courses</h2>
+        <h2 className="courses-title">
+          <FaGraduationCap
+            style={{ marginRight: "10px", verticalAlign: "middle" }}
+          />
+          Explore Our Courses
+        </h2>
         <p className="courses-subtitle">
           Discover a wide range of topics to boost your skills
         </p>
       </div>
 
       {isLoading ? (
-        <div className="courses-loading">Loading courses...</div>
+        <div className="courses-loading">
+          <FaSpinner className="spinner" style={{ marginRight: "10px" }} />
+          Loading courses...
+        </div>
       ) : courses.length === 0 ? (
-        <p className="courses-empty">No courses available</p>
+        <p className="courses-empty">No courses available at the moment</p>
       ) : (
         <div className="courses-grid">
           {courses.map((course) => (
@@ -76,6 +87,7 @@ const Courses = () => {
                   e.target.src =
                     "https://via.placeholder.com/300x150?text=No+Image";
                 }}
+                loading="lazy"
               />
               <h3 className="course-name">{course.name}</h3>
             </div>

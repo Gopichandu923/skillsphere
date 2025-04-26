@@ -30,10 +30,10 @@ const SignIn = async (req, res) => {
     const token = jwt.sign(
       { email: email },
       process.env.SECRET_PASS_JWT_TOKEN,
-      { expiresIn: "30d" }
+      { expiresIn: "30 d" }
     );
-
-    res.status(200).json({ message: "Successfully signed in", token });
+    console.log(token);
+    res.status(200).json({ message: "Successfully signed in", token: token });
   } catch (err) {
     console.error("Internal server error:", err.message);
     res.status(500).json({ message: "Internal server error" });
@@ -67,7 +67,7 @@ const SignUp = async (req, res) => {
     });
     await new_user.save();
 
-    res.status(201).json({ message: "User successfully signed up" });
+    res.status(201).json({ message: "signed up successfully" });
   } catch (err) {
     console.error("Internal server error:", err.message);
     res.status(500).json({ message: "Internal server error" });
@@ -77,18 +77,19 @@ const SignUp = async (req, res) => {
 const GetUserDetails = async (req, res) => {
   try {
     const { email } = req.body;
-
     // Validate input
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
     }
 
     // Find user
-    const e_user = await user.findOne({ email });
+    const e_user = await user.findOne(
+      { email },
+      { name: 1, email: 1, contact: 1 }
+    );
     if (!e_user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     res.status(200).json(e_user);
   } catch (err) {
     console.error("Internal server error:", err.message);

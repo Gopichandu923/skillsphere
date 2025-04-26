@@ -22,7 +22,7 @@ export const SignUpUser = async (details) =>
 export const SignInUser = async (details) =>
   await API.post("/user/signin", details);
 export const UserDetails = async (token) =>
-  await API.get("/userdetails", { headers: { "auth-token": token } });
+  await API.get("/user", { headers: { "auth-token": token } });
 
 //chatbot
 

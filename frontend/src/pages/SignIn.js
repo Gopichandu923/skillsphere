@@ -1,56 +1,93 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useUser } from "../context/UserContext";
 import "../css/SignIn.css";
 import { SignInUser } from "../api";
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const { login } = useUser();
 
   useEffect(() => {
-    document.title = "SkillSphere | Signin";
+    document.title = "SkillSphere | Sign In";
+    // Clear any existing auth token when coming to sign in page
+    localStorage.removeItem("skillsphere-auth");
   }, []);
+
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: id === "email" ? value.trimStart() : value,
+      [id]: id === "email" ? value.trim() : value,
     }));
+    // Clear error when user types
+    if (errors[id]) {
+      setErrors((prev) => ({ ...prev, [id]: "" }));
+    }
   };
 
   const validateForm = () => {
+    const newErrors = {};
     const { email, password } = formData;
-    if (!email || !password) return "All fields are required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      return "Please enter a valid email address";
-    return null;
+
+    if (!email) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = "Please enter a valid email address";
+
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    const validationError = validateForm();
-    if (validationError) {
-      showToast(validationError, "error");
-      setIsLoading(false);
-      return;
-    }
+    if (!validateForm()) return;
+
+    setIsLoading(true);
 
     try {
       const response = await SignInUser(formData);
-      localStorage.setItem("skillsphere-token", response.data.token);
-      showToast(response.data.message || "Successfully signed in!", "success");
-      setTimeout(() => navigate("/"), 2500);
+
+      if (!response?.data?.token) {
+        throw new Error("Authentication failed: No token received");
+      }
+
+      // Store token in localStorage
+      localStorage.setItem("skillsphere-auth", response.data.token);
+
+      // Verify storage
+      const storedToken = localStorage.getItem("skillsphere-auth");
+      if (!storedToken || storedToken !== response.data.token) {
+        throw new Error("Failed to persist authentication token");
+      }
+
+      showToast("Successfully signed in!", "success");
+      login(response.data.token); // Update user context
+      navigate("/", { replace: true });
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message ||
-        (err.message === "Network Error"
-          ? "Unable to connect to the server"
-          : "Failed to sign in. Please try again.");
+      console.error("SignIn Error:", err);
+
+      let errorMessage = "Sign in failed. Please try again.";
+      if (err.response) {
+        errorMessage = err.response.data?.message || errorMessage;
+      } else if (err.message.includes("Network Error")) {
+        errorMessage = "Unable to connect to the server";
+      } else if (err.message.includes("No token")) {
+        errorMessage = "Authentication failed. Please contact support.";
+      }
+
       showToast(errorMessage, "error");
     } finally {
       setIsLoading(false);
@@ -60,18 +97,30 @@ const SignIn = () => {
   const showToast = (message, type) => {
     toast[type](message, {
       position: "top-right",
-      autoClose: type === "success" ? 2000 : 3000,
+      autoClose: type === "success" ? 2000 : 4000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
-      theme: "light",
+      theme: "colored",
     });
   };
 
   return (
     <div className="auth-container">
-      <ToastContainer {...toastConfig} />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        limit={3}
+      />
 
       <div className="auth-card">
         <div className="auth-header">
@@ -81,7 +130,7 @@ const SignIn = () => {
           </p>
         </div>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="form-group">
             <label htmlFor="email" className="form-label">
               Email
@@ -89,14 +138,17 @@ const SignIn = () => {
             <input
               type="email"
               id="email"
-              className="form-input"
+              className={`form-input ${errors.email ? "error" : ""}`}
               value={formData.email}
               onChange={handleChange}
               placeholder="you@example.com"
               required
-              autoComplete="true"
+              autoComplete="email"
               disabled={isLoading}
             />
+            {errors.email && (
+              <span className="error-message">{errors.email}</span>
+            )}
           </div>
 
           <div className="form-group">
@@ -106,24 +158,29 @@ const SignIn = () => {
             <input
               type="password"
               id="password"
-              className="form-input"
+              className={`form-input ${errors.password ? "error" : ""}`}
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder="••••••••"
               required
-              autoComplete="false"
+              minLength="6"
+              autoComplete="current-password"
               disabled={isLoading}
             />
+            {errors.password && (
+              <span className="error-message">{errors.password}</span>
+            )}
           </div>
 
           <button
             type="submit"
             className={`auth-button ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
+            aria-busy={isLoading}
           >
             {isLoading ? (
               <>
-                <span className="spinner"></span>
+                <span className="spinner" aria-hidden="true"></span>
                 Signing in...
               </>
             ) : (
@@ -135,28 +192,19 @@ const SignIn = () => {
         <div className="auth-footer">
           <p className="auth-text">
             Don't have an account?{" "}
-            <a href="/signup" className="auth-link">
+            <Link to="/signup" className="auth-link">
               Sign Up
-            </a>
+            </Link>
+          </p>
+          <p className="auth-text">
+            <Link to="/forgot-password" className="auth-link">
+              Forgot password?
+            </Link>
           </p>
         </div>
       </div>
     </div>
   );
-};
-
-const toastConfig = {
-  position: "top-right",
-  autoClose: 3000,
-  hideProgressBar: false,
-  newestOnTop: true,
-  closeOnClick: true,
-  rtl: false,
-  pauseOnFocusLoss: true,
-  draggable: true,
-  pauseOnHover: true,
-  theme: "light",
-  limit: 3,
 };
 
 export default SignIn;

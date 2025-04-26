@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { GetMessage } from "../api"; // Adjust path to your API utility
+import { GetMessage } from "../api";
+import { useUser } from "../context/UserContext";
+import "../css/Chatbot.css"; // We'll create this CSS file
 
 const Chatbot = () => {
+  const { user } = useUser();
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -14,16 +17,30 @@ const Chatbot = () => {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
+
   useEffect(() => {
     document.title = "SkillSphere | Chatbot";
+    // Add welcome message if no messages exist
+    if (messages.length === 0) {
+      setMessages([
+        {
+          text: `Hello${
+            user?.name ? ` ${user.name}` : ""
+          }! I'm your SkillSphere AI assistant. How can I help you today?`,
+          sender: "bot",
+          timestamp: new Date(),
+        },
+      ]);
+    }
   }, []);
-  // Send message function
+
   const sendMessage = async () => {
     const message = userInput.trim();
     if (!message) {
       setError("Please enter a message.");
       return;
     }
+
     // Add user message
     const userMessage = {
       text: message,
@@ -34,22 +51,19 @@ const Chatbot = () => {
     setUserInput("");
     setError(null);
     setIsLoading(true);
+
     try {
-      // Build conversation context
-      const conversation =
-        messages
-          .filter((msg) => msg.text.trim()) // Exclude empty messages
-          .map(
-            (msg) =>
-              `${msg.sender === "user" ? "User" : "Assistant"}: ${msg.text}`
-          )
-          .join("\n") + `\nUser: ${message}\nAssistant:`;
-      const response = await GetMessage(conversation);
-      console.log(response);
+      const response = await GetMessage({
+        message,
+        context: messages.slice(-5), // Send last 5 messages as context
+      });
+
       setMessages((prev) => [
         ...prev,
         {
-          text: response.data.reply || "⚠ No response from AI.",
+          text:
+            response.data.reply ||
+            "I couldn't process that. Could you rephrase?",
           sender: "bot",
           timestamp: new Date(),
         },
@@ -60,7 +74,7 @@ const Chatbot = () => {
       setMessages((prev) => [
         ...prev,
         {
-          text: "Sorry, something went wrong. Please try again.",
+          text: "Sorry, I'm having trouble responding. Please try again later.",
           sender: "bot",
           timestamp: new Date(),
         },
@@ -70,7 +84,6 @@ const Chatbot = () => {
     }
   };
 
-  // Handle Enter key (prevent Shift+Enter)
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -79,130 +92,67 @@ const Chatbot = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "20px auto",
-        fontFamily: "Arial, sans-serif",
-        border: "1px solid #e0e0e0",
-        borderRadius: "8px",
-        padding: "20px",
-        backgroundColor: "#fff",
-      }}
-    >
-      <h2 style={{ textAlign: "center", color: "#333", marginBottom: "20px" }}>
-        Chat with AI 🤖
-      </h2>
+    <div className="chatbot-container">
+      <div className="chatbot-header">
+        <h2>AI Learning Assistant</h2>
+        <div className="chatbot-subtitle">
+          Ask me anything about your courses
+        </div>
+      </div>
 
-      {/* Chat Box */}
-      <div
-        ref={chatBoxRef}
-        style={{
-          height: "400px",
-          overflowY: "auto",
-          border: "1px solid #e0e0e0",
-          borderRadius: "8px",
-          padding: "15px",
-          backgroundColor: "#f9f9f9",
-          marginBottom: "15px",
-        }}
-      >
-        {messages.length === 0 ? (
+      <div ref={chatBoxRef} className="chatbot-messages">
+        {messages.map((msg, index) => (
           <div
-            style={{ textAlign: "center", color: "#888", paddingTop: "20px" }}
+            key={`${msg.timestamp || index}-${msg.sender}`}
+            className={`message ${msg.sender}`}
           >
-            Start the conversation!
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <div
-              key={`${msg.timestamp || index}-${msg.sender}`}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: msg.sender === "user" ? "flex-end" : "flex-start",
-                margin: "8px 0",
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: "70%",
-                  padding: "10px 15px",
-                  borderRadius: "12px",
-                  backgroundColor:
-                    msg.sender === "user" ? "#007bff" : "#e0e0e0",
-                  color: msg.sender === "user" ? "#fff" : "#333",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                }}
-              >
-                <span>{msg.text}</span>
-                {msg.timestamp && (
-                  <div
-                    style={{
-                      fontSize: "0.75em",
-                      opacity: 0.7,
-                      marginTop: "5px",
-                    }}
-                  >
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                )}
+            <div className="message-bubble">
+              <div className="message-text">{msg.text}</div>
+              <div className="message-time">
+                {new Date(msg.timestamp).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </div>
             </div>
-          ))
+          </div>
+        ))}
+        {isLoading && (
+          <div className="message bot">
+            <div className="message-bubble">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div
-          style={{
-            color: "#d32f2f",
-            textAlign: "center",
-            marginBottom: "10px",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className="chatbot-error">{error}</div>}
 
-      {/* Input Area */}
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+      <div className="chatbot-input-container">
         <input
           type="text"
-          placeholder="Type a message..."
+          placeholder="Type your question..."
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={isLoading}
-          style={{
-            flex: 1,
-            padding: "12px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "6px",
-            fontSize: "16px",
-            outline: "none",
-            backgroundColor: isLoading ? "#f5f5f5" : "#fff",
-          }}
         />
-        <button
-          onClick={sendMessage}
-          disabled={isLoading}
-          style={{
-            padding: "12px 24px",
-            backgroundColor: isLoading ? "#cccccc" : "#007bff",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            fontSize: "16px",
-            transition: "background-color 0.2s",
-          }}
-        >
-          {isLoading ? "Sending..." : "Send"}
+        <button onClick={sendMessage} disabled={isLoading || !userInput.trim()}>
+          {isLoading ? (
+            <span className="spinner"></span>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          )}
         </button>
       </div>
     </div>

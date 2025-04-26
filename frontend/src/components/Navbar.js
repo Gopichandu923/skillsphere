@@ -11,22 +11,6 @@ const Navbar = () => {
             SkillSphere
           </Link>
         </div>
-
-        <div className="navigation-links">
-          <Link to="/" className="nav-link">
-            Home
-          </Link>
-          <Link to="/courses" className="nav-link">
-            Courses
-          </Link>
-          <Link to="/resources" className="nav-link">
-            Resources
-          </Link>
-          <Link to="/about" className="nav-link">
-            About
-          </Link>
-        </div>
-
         <div className="navigation-actions">
           <Link to="/signin" className="auth-button login-button">
             Login

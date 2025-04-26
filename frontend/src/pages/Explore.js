@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import imageSrc from "../assests/pexels-photo-1326947.webp";
 import "../css/Explore.css"; // Unified stylesheet
 
 // Main Home Component
 const Explore = () => {
+  useEffect(() => {
+    document.title = "SkillSphere | Explore";
+  }, []);
   return (
     <div className="home-container">
       <Header />

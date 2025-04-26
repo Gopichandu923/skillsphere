@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../css/Home.css";
 
@@ -45,7 +45,11 @@ function ContactSection() {
   );
 }
 
-function App() {
+function Home() {
+  useEffect(() => {
+    document.title = "SkillSphere - Learn and Grow";
+  }, []);
+
   return (
     <div className="page-wrapper">
       <HeroSection />
@@ -54,4 +58,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

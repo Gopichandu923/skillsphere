@@ -11,6 +11,7 @@ const Courses = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = "SkillSphere | Courses";
     const fetchCourses = async () => {
       setIsLoading(true);
       try {

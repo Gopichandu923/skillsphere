@@ -14,7 +14,9 @@ const Chatbot = () => {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
-
+  useEffect(() => {
+    document.title = "SkillSphere | Chatbot";
+  }, []);
   // Send message function
   const sendMessage = async () => {
     const message = userInput.trim();

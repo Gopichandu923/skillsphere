@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,6 +10,9 @@ const SignIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.title = "SkillSphere | Signin";
+  }, []);
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -39,7 +42,7 @@ const SignIn = () => {
 
     try {
       const response = await SignInUser(formData);
-      localStorage.setItem("skillnova-token", response.data.token);
+      localStorage.setItem("skillsphere-token", response.data.token);
       showToast(response.data.message || "Successfully signed in!", "success");
       setTimeout(() => navigate("/"), 2500);
     } catch (err) {
@@ -91,6 +94,7 @@ const SignIn = () => {
               onChange={handleChange}
               placeholder="you@example.com"
               required
+              autoComplete="true"
               disabled={isLoading}
             />
           </div>
@@ -107,6 +111,7 @@ const SignIn = () => {
               onChange={handleChange}
               placeholder="Enter your password"
               required
+              autoComplete="false"
               disabled={isLoading}
             />
           </div>

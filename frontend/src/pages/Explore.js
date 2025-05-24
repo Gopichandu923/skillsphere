@@ -59,16 +59,10 @@ const Cards = () => {
       route: "/courses",
     },
     {
-      title: "Project Library",
+      title: "Knowledge Assessment Test",
       description:
-        "Browse beginner to advanced projects with GitHub and YouTube links.",
-      route: "/projects",
-    },
-    {
-      title: "Resume & AI Tools",
-      description:
-        "Use our AI-powered tools to generate resumes and prepare for interviews.",
-      route: "/tools",
+        "Take this test to evaluate your current skills. Based on your results, we'll generate a personalized learning roadmap to help you grow.",
+      route: "/tests",
     },
   ];
 

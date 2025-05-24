@@ -23,6 +23,7 @@ const Explore = lazy(() => import("./pages/Explore"));
 const CourseDetails = lazy(() => import("./components/CourseDetails"));
 const Questions = lazy(() => import("./components/Questions"));
 const Chatbot = lazy(() => import("./pages/Chatbot"));
+const Tests = lazy(() => import("./pages/Test.js"));
 
 // Layout component for pages with Navbar and Footer
 const DefaultLayout = ({ children }) => (
@@ -100,6 +101,14 @@ function App() {
                   </DefaultLayout>
                 }
               />
+              <Route
+                path="tests"
+                element={
+                  <DefaultLayout>
+                    <Tests />
+                  </DefaultLayout>
+                }
+              />
 
               {/* Auth routes */}
               <Route
@@ -131,7 +140,6 @@ function App() {
                   </DefaultLayout>
                 }
               />
-
               {/* 404 page */}
               <Route
                 path="*"

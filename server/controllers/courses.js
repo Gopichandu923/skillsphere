@@ -95,7 +95,6 @@ const getRoadmap = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const getQuestionsByCourse = async (req, res) => {
   try {
     const { id } = req.params;

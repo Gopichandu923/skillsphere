@@ -58,12 +58,6 @@ const Cards = () => {
         "Explore DSA, Web Dev, Mobile Dev, AI, and Cybersecurity from top YouTube educators.",
       route: "/courses",
     },
-    {
-      title: "Knowledge Assessment Test",
-      description:
-        "Take this test to evaluate your current skills. Based on your results, we'll generate a personalized learning roadmap to help you grow.",
-      route: "/tests",
-    },
   ];
 
   const handleCardClick = (route) => {
